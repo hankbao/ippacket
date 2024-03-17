@@ -101,6 +101,14 @@ impl Bytes {
         (&self.as_slice()[pos..]).read_u32::<B>()
     }
 
+    pub fn read_u64<B: ByteOrder>(&self, pos: usize) -> io::Result<u64> {
+        (&self.as_slice()[pos..]).read_u64::<B>()
+    }
+
+    pub fn read_u128<B: ByteOrder>(&self, pos: usize) -> io::Result<u128> {
+        (&self.as_slice()[pos..]).read_u128::<B>()
+    }
+
     pub fn write_u8(&mut self, pos: usize, value: u8) -> io::Result<()> {
         (&mut self.as_mut()[pos..]).write_u8(value)
     }
@@ -111,6 +119,14 @@ impl Bytes {
 
     pub fn write_u32<B: ByteOrder>(&mut self, pos: usize, value: u32) -> io::Result<()> {
         (&mut self.as_mut()[pos..]).write_u32::<B>(value)
+    }
+
+    pub fn write_u64<B: ByteOrder>(&mut self, pos: usize, value: u64) -> io::Result<()> {
+        (&mut self.as_mut()[pos..]).write_u64::<B>(value)
+    }
+
+    pub fn write_u128<B: ByteOrder>(&mut self, pos: usize, value: u128) -> io::Result<()> {
+        (&mut self.as_mut()[pos..]).write_u128::<B>(value)
     }
 
     pub fn pair_iter(&self) -> PairIter {
