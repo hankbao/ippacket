@@ -115,7 +115,7 @@ impl Ipv4Header {
     }
 
     pub fn checksum_valid(&self) -> bool {
-        (self.checksum() == self.calculated_checksum())
+        self.checksum() == self.calculated_checksum()
     }
 
     pub fn set_ttl(&mut self, ttl: u8) {

@@ -140,7 +140,7 @@ impl Iterator for PairIter {
         Some(match slice.len() {
             0 => unreachable!(),
             1 => u16::from(slice[0]) << 8,
-            _ => (u16::from(slice[0]) << 8 | u16::from(slice[1])),
+            _ => u16::from(slice[0]) << 8 | u16::from(slice[1]),
         })
     }
 }
@@ -159,7 +159,7 @@ where
             while folded > 0xFFFF {
                 folded = (folded >> 16) + (folded & 0xFFFF);
             }
-            (folded as u16)
+            folded as u16
         })
     }
 }
