@@ -2,6 +2,14 @@
 name = "ippacket"
 version = "0.1.0"
 authors = ["hankbao <hankbao84@gmail.com>"]
+license = "MIT"
+description = "A library for working with IP packets in Rust"
+repository = "https://github.com/hankbao/ippacket"
+homepage = "https://lib.rs/crates/ippacket"
+documentation = "https://docs.rs/ippacket"
+readme = "README.md"
+keywords = ["ip", "packet", "network", "protocol"]
+categories = ["network-programming"]
 edition = "2018"
 
 [dependencies]
