@@ -6,6 +6,7 @@ use byteorder::NetworkEndian;
 use crate::bytes::{Bytes, Checksum};
 use crate::ip::IpHeader;
 
+#[derive(Clone)]
 pub struct UdpHeader(Bytes);
 
 impl UdpHeader {

@@ -2,6 +2,7 @@
 
 #[macro_use]
 mod bytes;
+mod icmp;
 mod ip;
 mod tcp;
 mod udp;
@@ -11,11 +12,12 @@ use std::fmt;
 use std::io;
 use std::net::SocketAddr;
 
-use crate::bytes::Bytes;
 use crate::ip::IpHeaderBuilder;
 use crate::udp::UdpHeaderBuilder;
 use crate::window::Window;
 
+pub use self::bytes::Bytes;
+pub use self::icmp::{IcmpHeader, IcmpType4, IcmpType6};
 pub use self::ip::{ExtHeader, IpHeader, IpProto};
 pub use self::tcp::TcpHeader;
 pub use self::udp::UdpHeader;
@@ -24,6 +26,7 @@ pub use self::udp::UdpHeader;
 pub enum Payload {
     Udp(UdpHeader),
     Tcp(TcpHeader),
+    Icmp(IcmpHeader),
     Unknown(IpProto),
 }
 
@@ -32,7 +35,7 @@ impl Payload {
         match self {
             Payload::Udp(ref u) => Some(u.src()),
             Payload::Tcp(ref t) => Some(t.src()),
-            Payload::Unknown(..) => None,
+            _ => None,
         }
     }
 
@@ -40,7 +43,7 @@ impl Payload {
         match self {
             Payload::Udp(ref u) => Some(u.dest()),
             Payload::Tcp(ref t) => Some(t.dest()),
-            Payload::Unknown(..) => None,
+            _ => None,
         }
     }
 
@@ -109,6 +112,18 @@ impl IpPacket {
                         Err(e) => Err(e),
                     };
                 }
+                IpProto::Icmp => {
+                    return match IcmpHeader::with_bytes(remaining) {
+                        Ok((icmp_hdr, data)) => Ok(IpPacket {
+                            fixed: ip_hdr,
+                            exts,
+                            payload: Payload::Icmp(icmp_hdr),
+                            data,
+                            bytes,
+                        }),
+                        Err(e) => Err(e),
+                    };
+                }
                 p => match ExtHeader::with_bytes(remaining.clone(), p) {
                     Ok((ext_hdr, extra)) => {
                         next = ext_hdr.next();
@@ -153,11 +168,11 @@ impl IpPacket {
         match self.payload {
             Payload::Udp(ref u) => u.checksum_valid(&self.fixed, data),
             Payload::Tcp(ref t) => t.checksum_valid(&self.fixed, data),
+            Payload::Icmp(ref i) => i.checksum_valid(data),
             Payload::Unknown(_p) => true,
         }
     }
 
-    #[allow(clippy::single_match)]
     pub fn calculate_checksum(&mut self) {
         if let IpHeader::V4(ref mut h) = &mut self.fixed {
             h.calculate_checksum()
@@ -167,6 +182,7 @@ impl IpPacket {
         match self.payload {
             Payload::Udp(ref mut u) => u.calculate_checksum(&self.fixed, data),
             // Payload::Tcp(ref mut t) => t.calculate_checksum(&self.fixed, data),
+            Payload::Icmp(ref mut i) => i.calculate_checksum(data),
             _ => (),
         }
     }

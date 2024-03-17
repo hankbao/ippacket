@@ -8,6 +8,7 @@ use byteorder::NetworkEndian;
 use crate::bytes::{Bytes, Checksum};
 use crate::ip::IpHeader;
 
+#[derive(Clone)]
 pub struct TcpHeader(Bytes);
 
 #[allow(clippy::len_without_is_empty)]
